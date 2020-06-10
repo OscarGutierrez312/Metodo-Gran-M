@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Jun  7 17:14:43 2020
 
-@author: POLICLINICO
-"""
 from tkinter import *
 from tkinter import ttk
 import tkinter as tk
