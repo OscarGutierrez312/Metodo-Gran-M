@@ -56,12 +56,10 @@ def cambiar():
     frame2.pack()
     
 def ejecucion(funcion, restr, NF, NR):
-   
-    
+       
     frame2.pack_forget()
     frame3.pack()
-    
-       
+           
     A=0
     H=0
     HN=0
@@ -82,8 +80,7 @@ def ejecucion(funcion, restr, NF, NR):
     matriz=np.zeros((y,x+1))
     
     cont=0
-    
-    
+        
     for i in range (NR):
         for j in range (x):
             if(j<NF):
@@ -92,8 +89,7 @@ def ejecucion(funcion, restr, NF, NR):
                 cont+=1
             
             matriz[i][NF+1]=1
-            
-                
+             
             matriz[i][x]=restr.get('b'+str(i)).get("1.0","end")
     
     matriz[1][3]=-1
@@ -105,6 +101,9 @@ def ejecucion(funcion, restr, NF, NR):
     Fil=0
     
     Coef=[]
+    
+    Var=['X1', 'X2', 'X3', 'H2', 'H1','b']
+    Oper=['Cj','VB',Var[2],Var[1],'Z', 'Cj-Zj']
     
     for i in range(NF):
         Coef.append(int(funcion.get(i).get("1.0","end")))
@@ -120,52 +119,65 @@ def ejecucion(funcion, restr, NF, NR):
     
     matriz[1]=(matriz[0]*-0.5)+matriz[1]
     
+    matriz[2]=(matriz[0]*Coef[2])+(matriz[1]*Coef[1])
+    
+    Coef.append(0)
+    
+    matriz[3]=Coef-matriz[2]
+    
     print(matriz)
     
     Lbl3=tk.Label(frame3, text="Metodo de la Gran M Solución")
     Lbl3.config(font=("Helvetica",24))
-    Lbl3.grid(pady=5,row=0,column=0, columnspan=x)
+    Lbl3.grid(pady=5,row=0,column=0, columnspan=x+2)
     
-    for i in range(1,NF+1):
+    
+    
+    for i in range(y+2):
+       
+        for j in range(x+1):
+            Txt3_1=tk.Entry(frame3, width=5)
+            Txt3_1.config(font=("Helvetica",15))
+            Txt3_1.grid(row=i+1,column=j)
+            if(i>1 and j>0 and j!=(x)):
+                Txt3_1.insert(0,matriz[i-2][j-1])  
+            if(i>1 and j==x):
+                Txt3_1.insert(0,matriz[i-2][j])
+            if(j==0):
+                Txt3_1.insert(0,Oper[i])
+            if(i==1 and j>0):
+                Txt3_1.insert(0,Var[j-1])
+            if(i==0 and j>0 and j<(x)):
+                Txt3_1.insert(0,Coef[j-1])
+            
+   
+    for i in range(1,NF):
         
         Lbl3_1=tk.Label(frame3, text="X"+str(i)+"=")
         Lbl3_1.config(font=("Helvetica",24))
-        Lbl3_1.grid(pady=5,row=i,column=0, columnspan=2)
+        Lbl3_1.grid(pady=5,row=i+8,column=0, columnspan=2)
 
         Lbl3_2=tk.Label(frame3, text=matriz[i-1][x])
         Lbl3_2.config(font=("Helvetica",24))
-        Lbl3_2.grid(pady=5,row=i,column=1, columnspan=2)
+        Lbl3_2.grid(pady=5,row=i+8,column=1, columnspan=2)
         
-    
+    Lbl3_1=tk.Label(frame3, text="X"+str(3)+"=")
+    Lbl3_1.config(font=("Helvetica",24))
+    Lbl3_1.grid(pady=5,row=11,column=0, columnspan=2)
+
+    Lbl3_2=tk.Label(frame3, text=matriz[0][x])
+    Lbl3_2.config(font=("Helvetica",24))
+    Lbl3_2.grid(pady=5,row=11,column=1, columnspan=2)
         
    
     Lbl3_4=tk.Label(frame3, text="Z=")
     Lbl3_4.config(font=("Helvetica",24))
-    Lbl3_4.grid(pady=5,row=1,column=3, columnspan=2)
+    Lbl3_4.grid(pady=5,row=9,column=3, columnspan=2)
     
     Lbl3_3=tk.Label(frame3, text=matriz[1][x]*Coef[1])
     Lbl3_3.config(font=("Helvetica",24))
-    Lbl3_3.grid(pady=5,row=1,column=4, columnspan=2)
-"""         
-    
-    Lbl3_5=tk.Label(frame3, text="X3=")
-    Lbl3_5.config(font=("Helvetica",24))
-    Lbl3_5.grid(pady=5,row=3,column=0, columnspan=2)
-    
-    
-    
-    Lbl3_6=tk.Label(frame3, text=matriz[2][x])
-    Lbl3_6.config(font=("Helvetica",24))
-    Lbl3_6.grid(pady=5,row=3,column=1, columnspan=2)
-    
-    
-    
-   
-    Txt3_1=tk.Entry(frame3, width=3)
-    Txt3_1.config(font=("Helvetica",15))
-    Txt3_1.grid(pady=1,row=1,column=1)
-    Txt3_1.insert(0,'32')
-"""   
+    Lbl3_3.grid(pady=5,row=9,column=4, columnspan=2)
+
    
 def frm2():
     N_Var=Txt1.get("1.0","end")
