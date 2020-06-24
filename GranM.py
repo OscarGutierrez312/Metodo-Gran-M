@@ -74,6 +74,9 @@ def frm1():
     Btn1=tk.Button(frame1, text="Aceptar", width=60,command=lambda: frm2(des.get(),Txt1.get("1.0","end"),Txt1_1.get("1.0","end")))
     Btn1.grid(padx=1,pady=5,row=5,column=0, columnspan=2)
     
+# =============================================================================
+# Creación de elementos del frame 2 (Ventana para ingresar Coeficientes)
+# =============================================================================
 def frm2(tipo, N_Var, N_Res):
     
     frame1.pack_forget()
@@ -129,7 +132,10 @@ def frm2(tipo, N_Var, N_Res):
     Btn2=tk.Button(frame2, text="Continuar", width=60, command=lambda: ejecutar(tipo, Fun_Obj, Rest, N_Var, N_Res,paso))
     Btn2.grid(padx=1,pady=5,row=int(N_Res)+3,column=0, columnspan=int(N_Var)+1)
     
-
+# =============================================================================
+# Toma los elementos de la ventana de los coeficientes y los asigna  las matrices
+# y vectores correspondientes para la primera iteración    
+# =============================================================================
 def transformar(tipo, Fun_Obj, Rest, N_Var, N_Res):
     Coef=[]
     Hol=[]
@@ -192,7 +198,9 @@ def transformar(tipo, Fun_Obj, Rest, N_Var, N_Res):
     return [matriz, Co]
   
     
-
+# =============================================================================
+# Realiza la primera iteración utilizando el coeficiente M de las variables artificiales
+# =============================================================================
     
 def ejecutar(tipo, Fun_Obj, Rest, N_Var, N_Res, paso):
     if(paso==1):
@@ -201,8 +209,6 @@ def ejecutar(tipo, Fun_Obj, Rest, N_Var, N_Res, paso):
         matriz=np.array(matriz[0])
         
         base=Coef[Coef.shape[0]-N_Res: Coef.shape[0]]
-#        Coef[::-1][0:Coef.shape[0]-N_Res]
-        
         
         Zj=np.zeros(matriz.shape[1], dtype=float)
         for i in range(N_Res):
@@ -233,10 +239,12 @@ def ejecutar(tipo, Fun_Obj, Rest, N_Var, N_Res, paso):
     paso+=1
     
     
+# =============================================================================
+# Función utilizada para realizar la impresión de cada uno de los tableros
+# correspondientes a los pasos de solución
+# =============================================================================
 def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso):
    
-    
-    
     Labl=['Cj', 'VB']
     if(paso==1):
         frame2.pack_forget()
@@ -363,7 +371,9 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso):
             newFrame.pack()
     
 
-    
+# =============================================================================
+# Metodo que calcula cada paso de la solución para imprimirla en pantalla
+# =============================================================================
 def calcular(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo, paso):
 
     
@@ -448,6 +458,10 @@ def calcular(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo, paso):
         Cj_Zj=np.array(Coef+(Zj[0:len(Zj)-1]*-1))
         
         imprimir(Coef, Var, V_Base, base, matriz, Zj, Cj_Zj, tipo, paso+1)
+        
+# =============================================================================
+# Metodo que verifica si el proceso de iteraciones terminó
+# =============================================================================
     
 def terminar(tipo, Cj_Zj):
     terminado=True
