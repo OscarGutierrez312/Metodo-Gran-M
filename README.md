@@ -10,4 +10,4 @@
 * En este repositorio se encuentran alojados todos los algoritmos 
   para los diferentes ejercicios del metodo de la gran M
 ## Manual de Usuario
-----
+![Estructura](https://github.com/OscarGutierrez312/Metodo-Gran-M/blob/master/Manual%20de%20Usuario.pdf)
