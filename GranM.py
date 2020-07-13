@@ -32,7 +32,9 @@ frame3=Frame(raiz, width=w, height=h)
 newFrame=Frame(raiz, width=w, height=h)
 finalFrame=Frame(raiz, width=w, height=h)
 
-
+# =============================================================================
+#   Método principal de Ejecución del programa
+# =============================================================================
 def main():
     frm1()
     
@@ -60,18 +62,15 @@ def frm1():
     Lbl1_1=tk.Label(frame1, text="Numero de Variables")
     Lbl1_1.config(font=("Helvetica",15))
     Lbl1_1.grid(pady=5,row=3,column=0)
-    
-    
+        
     Txt1=tk.Text(frame1, height=1.5, width=30)
     Txt1.config(font=("Helvetica",15))
     Txt1.grid(pady=5,row=3,column=1)
-    
-    
+        
     Lbl1_2=tk.Label(frame1, text="Numero de Restricciones")
     Lbl1_2.config(font=("Helvetica",15))
     Lbl1_2.grid(pady=1,row=4,column=0)
-    
-    
+        
     Txt1_1=tk.Text(frame1, height=1.5, width=30)
     Txt1_1.config(font=("Helvetica",15))
     Txt1_1.grid(pady=1,row=4,column=1)
@@ -112,10 +111,8 @@ def frm2(tipo, N_Var, N_Res):
     
     Rest={}
     cont=0
-    for i in range (int(N_Res)):
-        
-        for j in range(int (N_Var)):
-                    
+    for i in range (int(N_Res)):        
+        for j in range(int (N_Var)):                    
             Txt3=tk.Text(frame2, height=1, width=6)
             Txt3.config(font=("Helvetica",14))
             Txt3.grid(pady=5,row=i+3,column=j+1)
@@ -134,11 +131,12 @@ def frm2(tipo, N_Var, N_Res):
     
     paso=1
     
-    Btn2=tk.Button(frame2, text="Continuar", width=60, command=lambda: ejecutar(tipo, Fun_Obj, Rest, N_Var, N_Res,paso))
+    Btn2=tk.Button(frame2, text="Continuar", width=60, 
+                   command=lambda: ejecutar(tipo, Fun_Obj, Rest, N_Var, N_Res,paso))
     Btn2.grid(padx=1,pady=5,row=int(N_Res)+3,column=0, columnspan=int(N_Var)+1)
     
 # =============================================================================
-# Toma los elementos de la ventana de los coeficientes y los asigna  las matrices
+# Toma los elementos de la ventana de los coeficientes y los asigna a las matrices
 # y vectores correspondientes para la primera iteración    
 # =============================================================================
 def transformar(tipo, Fun_Obj, Rest, N_Var, N_Res):
@@ -148,13 +146,11 @@ def transformar(tipo, Fun_Obj, Rest, N_Var, N_Res):
     b=[]
     cont=0
     for i in range(N_Res):
-        nx=[]
-        
+        nx=[]        
         for j in range(N_Var):
             n=Rest.get(cont).get("1.0","end")
             nx.append(float(n))
-            cont+=1
-        
+            cont+=1        
         Coef.append(nx)
             
         n=Rest.get('b'+str(i)).get("1.0","end")
@@ -178,14 +174,10 @@ def transformar(tipo, Fun_Obj, Rest, N_Var, N_Res):
             h=np.zeros(N_Res, dtype=int)
             h[i]=1
             Hol.append(h)
-    
-        
+          
     b=np.array(b)
-    
-    
-    
+      
     matriz=np.concatenate((Coef,np.transpose(np.concatenate((Hol, Art),axis=0)),b.reshape(N_Res,1)),axis=1)
-    
     
     Co=np.zeros(matriz.shape[1]-1, dtype=float)
     
@@ -198,18 +190,19 @@ def transformar(tipo, Fun_Obj, Rest, N_Var, N_Res):
                 Co[i]=-1     
             if(tipo=='Minimizar'):
                 Co[i]=1
-    
-    
     return [matriz, Co]
   
-
 # =============================================================================
-# Realiza la primera iteración utilizando el coeficiente M de las variables artificiales
+# Prepara los coeficientes para la primera iteración, agregando variables artificiales 
+# y de holgura, organizandolas en el orden de una matriz de identidad   
 # =============================================================================
     
 def ejecutar(tipo, Fun_Obj, Rest, N_Var, N_Res, paso):
     if(paso==1):
-        
+        """ 
+        Toma los coeficientes ingresados, separando coeficientes de la función
+        objetivo y de las restricciones            
+        """
         
         matriz=transformar(tipo, Fun_Obj, Rest, N_Var, N_Res)
         Coef=np.array(matriz[1])
@@ -218,7 +211,10 @@ def ejecutar(tipo, Fun_Obj, Rest, N_Var, N_Res, paso):
         Var=[]
         h=1
         a=1
-        
+        """ 
+        Agrega variables de holgura y artificiales, de acuerdo a 
+        las restricciones ingresadas
+        """
         for i in range(len(Coef)):
             if(i<N_Var):
                 Var.append('X'+str(i+1))
@@ -229,6 +225,10 @@ def ejecutar(tipo, Fun_Obj, Rest, N_Var, N_Res, paso):
                 if(Coef[i]==1 or Coef[i]==-1):
                     Var.append('A'+str(a))
                     a+=1
+        """ 
+        Agrega los coeficientes de las restricciones, junto con las variables de 
+        holgura y artificiales a una sola matriz para comenzar a aplicar el método
+        """
         cont=0
         for i in range(matriz.shape[1]-2,N_Var-1, -1):
             if(cont<matriz.shape[0]):
@@ -236,10 +236,10 @@ def ejecutar(tipo, Fun_Obj, Rest, N_Var, N_Res, paso):
                 if(matriz[fila][i]!=1):
                     for j in range(N_Var, matriz.shape[1]-1):
                         if (matriz[fila][j]==1):
-                            matriz=np.concatenate((matriz,np.array(matriz[:,j]).reshape(matriz.shape[0],1)), axis=1)
+                            matriz=np.concatenate((matriz,np.array(matriz[:,j]).reshape(matriz.shape[0],1)),
+                                                  axis=1)
                             Coef=np.append(Coef, Coef[j])
                             Var=np.append(Var, Var[j])
-                            
                             
                             matriz[:,j]=matriz[:,i]
                             Coef[j]=Coef[i]
@@ -255,11 +255,13 @@ def ejecutar(tipo, Fun_Obj, Rest, N_Var, N_Res, paso):
                             
                             break
                 cont+=1
-            
+        """ Toma los coeficientes para la base """
         base=Coef[Coef.shape[0]-N_Res: Coef.shape[0]]
         
+        """ Toma las variables para la base """
         V_Base=Var[len(Var)-matriz.shape[0]:len(Var)]
         
+        """ Calcula las filas Zj y Cj-Zj para la primera iteración """
         Zj=np.zeros(matriz.shape[1], dtype=float)
         
         for i in range(N_Res):
@@ -268,10 +270,10 @@ def ejecutar(tipo, Fun_Obj, Rest, N_Var, N_Res, paso):
             
         Cj_Zj=Coef-Zj[0:len(Zj)-1]
         
+    """ Imprime la primera tabla """
  
     imprimir(Coef, Var, V_Base,base, matriz, Zj, Cj_Zj, tipo, paso, True)
     paso+=1
-    
     
 # =============================================================================
 # Función utilizada para realizar la impresión de cada uno de los tableros
@@ -287,9 +289,6 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
         sym.init_printing(use_unicode=False, wrap_line=True)
         
         M=sym.Symbol('M')
-        
-        
-
         V=[]
         for i in range(len(base)):
             if ('A' in V_Base[i]):
@@ -320,8 +319,6 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
         except:
             CZ=np.array(C-(Z[0:len(Z)-1]))
         
-        
-    
         Lbl3=tk.Label(frame3, text="Metodo de la Gran M Paso "+str(paso))
         Lbl3.config(font=("Helvetica",24))
         Lbl3.grid(pady=5,row=0,column=0, columnspan=matriz.shape[1]+2)
@@ -330,7 +327,6 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
         Var=np.append(Var,'b')
               
         for i in range(matriz.shape[0]+4):
-           
             for j in range(matriz.shape[1]+1):
                 Txt3_1=tk.Entry(frame3, width=6)
                 Txt3_1.config(font=("Helvetica",15))
@@ -341,16 +337,12 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
                         Txt3_1.insert(0,'%g'%(round(matriz[i-2][j-1], 2)))
                     if(i==(matriz.shape[0]+2)):  
                         Txt3_1.insert(0,Z[j-1])
-                        
                     if(i==(matriz.shape[0]+3) and j<matriz.shape[1]):
                         Txt3_1.insert(0,CZ[j-1])
-                        
                 if(j==0):
                     Txt3_1.insert(0,Labl[i])
-                
                 if(i==1 and j>0):
                     Txt3_1.insert(0,Var[j-1])
-        
                 if(i==0 and j>0 and j<(matriz.shape[1])):
                     if('A' in Var[j-1]):
                         if(Coef[j-1]==1):    
@@ -361,7 +353,6 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
                         Txt3_1.insert(0,'%g'%(Coef[j-1]))
         Btn2=tk.Button(frame3, text="Continuar", width=60, command=lambda: calcular(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo, paso))
         Btn2.grid(padx=1,pady=5,row=matriz.shape[0]+5,column=0, columnspan=matriz.shape[1])
-        
         
         Aux=Zj_M(base, V_Base)
         
@@ -375,11 +366,9 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
         Lbl3_1.config(font=("Helvetica",20))
         Lbl3_1.grid(pady=5,row=matriz.shape[0]+6,column=0, columnspan=3)
         
-        
         Lbl3_2=tk.Label(frame3, text='V. Sal: '+V_Base[Fil])
         Lbl3_2.config(font=("Helvetica",20))
         Lbl3_2.grid(pady=5,row=matriz.shape[0]+7,column=0, columnspan=3)
-        
         
         Lbl3_3=tk.Label(frame3, text='Pivote: '+'%g'%(matriz[Fil][Col]))
         Lbl3_3.config(font=("Helvetica",20))
@@ -396,7 +385,6 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
         
         Labl=np.concatenate((Labl, V_Base,['Zj','Cj-Zj']))
         for i in range(matriz.shape[0]+4):
-           
             for j in range(matriz.shape[1]+1):
                 Txt3_1=tk.Entry(newFrame, width=6)
                 Txt3_1.config(font=("Helvetica",15))
@@ -409,17 +397,12 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
                         Txt3_1.insert(0,'%g'%(round(Zj[j-1],2)))
                     if(i==(matriz.shape[0]+3) and j<matriz.shape[1]):
                         Txt3_1.insert(0,'%g'%(round(Cj_Zj[j-1],2)))
-                        
                 if(j==0):
                     Txt3_1.insert(0,Labl[i])
-                
                 if(i==1 and j>0):
                     Txt3_1.insert(0,Var[j-1])
-        
                 if(i==0 and j>0 and j<(matriz.shape[1])):
                     Txt3_1.insert(0,'%g'%(Coef[j-1]))
-        
-        
         
         Btn2=tk.Button(newFrame, text="Continuar", width=60, command=lambda: calcular(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo, paso))
         Btn2.grid(padx=1,pady=5,row=matriz.shape[0]+5,column=0, columnspan=matriz.shape[1])
@@ -430,16 +413,13 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
         Lbl3_1.config(font=("Helvetica",20))
         Lbl3_1.grid(pady=5,row=matriz.shape[0]+6,column=0, columnspan=3)
         
-        
         Lbl3_2=tk.Label(newFrame, text='V. Sal: '+V_Base[Fil])
         Lbl3_2.config(font=("Helvetica",20))
         Lbl3_2.grid(pady=5,row=matriz.shape[0]+7,column=0, columnspan=3)
         
-        
         Lbl3_3=tk.Label(newFrame, text='Pivote: '+'%g'%(matriz[Fil][Col]))
         Lbl3_3.config(font=("Helvetica",20))
         Lbl3_3.grid(pady=5,row=matriz.shape[0]+8,column=0, columnspan=3)
-        
         
         newFrame.pack()        
     else:
@@ -451,7 +431,6 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
         
         Labl=np.concatenate((Labl, V_Base,['Zj','Cj-Zj']))
         for i in range(matriz.shape[0]+4):
-           
             for j in range(matriz.shape[1]+1):
                 Txt3_1=tk.Entry(finalFrame, width=6)
                 Txt3_1.config(font=("Helvetica",15))
@@ -464,31 +443,22 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
                         Txt3_1.insert(0,'%g'%(round(Zj[j-1],2)))
                     if(i==(matriz.shape[0]+3) and j<matriz.shape[1]):
                         Txt3_1.insert(0,'%g'%(round(Cj_Zj[j-1],2)))
-                        
                 if(j==0):
                     Txt3_1.insert(0,Labl[i])
-                
                 if(i==1 and j>0):
                     Txt3_1.insert(0,Var[j-1])
-        
                 if(i==0 and j>0 and j<(matriz.shape[1])):
                     Txt3_1.insert(0,'%g'%(Coef[j-1]))
-            
-            
-            
         for i in range(len(Var)-1):
             if('X' in Var[i]):
-            
                 Lbl3_1=tk.Label(finalFrame, text=Var[i]+' = ')
                 Lbl3_1.config(font=("Helvetica",20))
                 Lbl3_1.grid(pady=5,row=matriz.shape[0]+(6+i),column=0, columnspan=3)
                 
                 if(Var[i] in V_Base):  
                     b='%g'%(round(matriz[np.where(np.array(V_Base) == np.array(Var[i]))[0][0]][matriz.shape[1]-1],2))
-                    
                     Lbl3_2=tk.Label(finalFrame, text=b)
                 else:
-                    
                     Lbl3_2=tk.Label(finalFrame, text=0)
                 
                 Lbl3_2.config(font=("Helvetica",20))
@@ -505,8 +475,6 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
     
         Btn2=tk.Button(finalFrame, text="Terminado", width=60)
         Btn2.grid(padx=1,pady=5,row=matriz.shape[0]+5,column=0, columnspan=matriz.shape[1])
-        
-        
         finalFrame.pack()
     
 # =============================================================================
@@ -514,46 +482,46 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
 # =============================================================================
 def calcular(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo, paso):
 
-    
+    """ Se verifica si hay variables artificiales en el vector de variables """
     if(FaseArt(Var)):
-        
+        """ Calcula una base auxiliar, utilizando la variable M """
         Aux=Zj_M(base, V_Base)
-        
+        """ Calcula la fila de variables, utilizando la variable M"""
         C=Zj_M(Coef, Var)
-        
+        """ Calcula Zj y Cj-Zj, de acuerdo a la variable M """
         Zj, Cj_Zj = CjZj(matriz, Aux, C)
-        
+        """ Calcula fila y columna pivote """
         Fil_Piv, Col_Piv=Pivote(matriz, Cj_Zj, V_Base, tipo)
-        
+        """ Realiza la eliminación gaussiana """
         matriz=Gauss(matriz, Fil_Piv, Col_Piv)
-       
+        """ Modifica las variables y coeficientes de la base """
         base[Fil_Piv]=Coef[Col_Piv]
-        elim=V_Base[Fil_Piv]
+        elim=V_Base[Fil_Piv]            
         V_Base[Fil_Piv]=Var[Col_Piv]
         
+        """ Elimina la variable artificial que salió anteriormente de la base """
         for i in range(matriz.shape[1]-1):
             if(Var[i]==elim):
                 matriz=np.delete(matriz, i,axis=1)
                 Var=np.delete(Var, i)
                 Coef=np.delete(Coef, i)
-        
-        
-        
+        """ Calcula fila Zj y Cj-Zj """
         Zj, Cj_Zj = CjZj(matriz, base, Coef)
-        
+        """ Imprime el resultado """
         imprimir(Coef, Var, V_Base,base, matriz, Zj, Cj_Zj, tipo, paso+1, FaseArt(Var))
     
     else:
-        
+        """  Si no se encuentran variables artificiales despues de ser eliminadas las columnas de la matriz """
+        """  Calcula fila y columna pivote """
         Fil_Piv, Col_Piv=Pivote(matriz, Cj_Zj, V_Base, tipo)
-        
+        """ Realiza eliminación gaussiana """
         matriz=Gauss(matriz, Fil_Piv, Col_Piv)       
-        
+        """ Modifica variables y coeficientes de la base """
         base[Fil_Piv]=Coef[Col_Piv]
         V_Base[Fil_Piv]=Var[Col_Piv]
-        
+        """ Calcula filas de Zj y Cj-Zj """
         Zj, Cj_Zj = CjZj(matriz, base, Coef)        
-        
+        """ Imprime el resultado """
         imprimir(Coef, Var, V_Base, base, matriz, Zj, Cj_Zj, tipo, paso+1, FaseArt(Var))
         
         
@@ -574,15 +542,10 @@ def FaseArt(Var):
 def Pivote(matriz, Cj_Zj, V_Base, tipo):
     
     if (tipo == 'Minimizar'):
-    
         Col_Piv=np.where(Cj_Zj==min(Cj_Zj))[0][0]
-        
     else:
-        
         Col_Piv=np.where(Cj_Zj==max(Cj_Zj))[0][0]
-    
     b=matriz[:,matriz.shape[1]-1]
-    
     
     Col=[]
     for i in range(matriz.shape[0]):
@@ -609,13 +572,14 @@ def Pivote(matriz, Cj_Zj, V_Base, tipo):
         
     return Fil_Piv, Col_Piv
 
+# =============================================================================
+# Modifica la base de acuerdo al coeficiente M
+# =============================================================================
 def Zj_M(base, V_Base):
     M=1000000
-        
     Aux=[]
     
     for i in range(len(base)):
-        
         if ('A' in V_Base[i]):
             Aux.append(base[i]*M)
         else:
@@ -627,14 +591,11 @@ def Zj_M(base, V_Base):
 # =============================================================================
         
 def Gauss(matriz, Fil_Piv, Col_Piv):
-    
     matriz[Fil_Piv]/=matriz[Fil_Piv][Col_Piv]
-    
     for i in range(matriz.shape[0]):
         if(i!=Fil_Piv):
             m=matriz[i][Col_Piv]
             matriz[i]=(matriz[Fil_Piv]*(m*-1))+matriz[i]
-            
     return matriz
 
 # =============================================================================
@@ -668,7 +629,6 @@ def terminar(tipo, Cj_Zj):
     return terminado
 
 main()
-
 
 raiz.mainloop()
 
