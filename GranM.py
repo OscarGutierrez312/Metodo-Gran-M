@@ -29,6 +29,7 @@ frame1=Frame(raiz, width=w, height=h)
 frame1.pack(fill='both', expand=1)
 frame2=Frame(raiz, width=w, height=h)
 frame3=Frame(raiz, width=w, height=h)
+frame4=Frame(raiz, width=w, height=h)
 newFrame=Frame(raiz, width=w, height=h)
 finalFrame=Frame(raiz, width=w, height=h)
 
@@ -77,7 +78,7 @@ def frm1():
 
     Btn1=tk.Button(frame1, text="Aceptar", width=60,command=lambda: frm2(des.get(),Txt1.get("1.0","end"),Txt1_1.get("1.0","end")))
     Btn1.grid(padx=1,pady=5,row=5,column=0, columnspan=2)
-    
+
 # =============================================================================
 # Creación de elementos del frame 2 (Ventana para ingresar Coeficientes)
 # =============================================================================
@@ -200,8 +201,8 @@ def transformar(tipo, Fun_Obj, Rest, N_Var, N_Res):
 def ejecutar(tipo, Fun_Obj, Rest, N_Var, N_Res, paso):
     if(paso==1):
         """ 
-        Toma los coeficientes ingresados, separando coeficientes de la función
-        objetivo y de las restricciones            
+       Toma los coeficientes ingresados, separando coeficientes de la función
+       objetivo y de las restricciones            
         """
         
         matriz=transformar(tipo, Fun_Obj, Rest, N_Var, N_Res)
@@ -319,7 +320,10 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
         except:
             CZ=np.array(C-(Z[0:len(Z)-1]))
         
-        Lbl3=tk.Label(frame3, text="Metodo de la Gran M Paso "+str(paso))
+        if (paso>1):
+            Lbl3=tk.Label(frame4, text="Metodo de la Gran M Paso "+str(paso))
+        else:
+            Lbl3=tk.Label(frame3, text="Metodo de la Gran M Paso "+str(paso))
         Lbl3.config(font=("Helvetica",24))
         Lbl3.grid(pady=5,row=0,column=0, columnspan=matriz.shape[1]+2)
         
@@ -328,7 +332,10 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
               
         for i in range(matriz.shape[0]+4):
             for j in range(matriz.shape[1]+1):
-                Txt3_1=tk.Entry(frame3, width=6)
+                if (paso>1):
+                    Txt3_1=tk.Entry(frame4, width=6)
+                else:
+                    Txt3_1=tk.Entry(frame3, width=6)
                 Txt3_1.config(font=("Helvetica",15))
                 Txt3_1.grid(row=i+1,column=j)
                 
@@ -351,7 +358,10 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
                             Txt3_1.insert(0,'-M')
                     else:
                         Txt3_1.insert(0,'%g'%(Coef[j-1]))
-        Btn2=tk.Button(frame3, text="Continuar", width=60, command=lambda: calcular(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo, paso))
+        if (paso>1):
+            Btn2=tk.Button(frame4, text="Continuar", width=60, command=lambda: calcular(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo, paso))
+        else:
+            Btn2=tk.Button(frame3, text="Continuar", width=60, command=lambda: calcular(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo, paso))
         Btn2.grid(padx=1,pady=5,row=matriz.shape[0]+5,column=0, columnspan=matriz.shape[1])
         
         Aux=Zj_M(base, V_Base)
@@ -362,22 +372,34 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
         
         Fil, Col=Pivote(matriz, Cj_Zj, V_Base, tipo)
         
-        Lbl3_1=tk.Label(frame3, text='V. Ent: '+Var[Col])
+        if (paso>1):
+            Lbl3_1=tk.Label(frame4, text='V. Ent: '+Var[Col])
+            Lbl3_2=tk.Label(frame4, text='V. Sal: '+V_Base[Fil])
+            Lbl3_3=tk.Label(frame4, text='Pivote: '+'%g'%(matriz[Fil][Col]))
+        else:
+        
+            Lbl3_1=tk.Label(frame3, text='V. Ent: '+Var[Col])
+            Lbl3_2=tk.Label(frame3, text='V. Sal: '+V_Base[Fil])
+            Lbl3_3=tk.Label(frame3, text='Pivote: '+'%g'%(matriz[Fil][Col]))
+            
         Lbl3_1.config(font=("Helvetica",20))
         Lbl3_1.grid(pady=5,row=matriz.shape[0]+6,column=0, columnspan=3)
         
-        Lbl3_2=tk.Label(frame3, text='V. Sal: '+V_Base[Fil])
+        
         Lbl3_2.config(font=("Helvetica",20))
         Lbl3_2.grid(pady=5,row=matriz.shape[0]+7,column=0, columnspan=3)
         
-        Lbl3_3=tk.Label(frame3, text='Pivote: '+'%g'%(matriz[Fil][Col]))
+        
         Lbl3_3.config(font=("Helvetica",20))
         Lbl3_3.grid(pady=5,row=matriz.shape[0]+8,column=0, columnspan=3)
-    
-        frame3.pack()     
+        if (paso>1):
+            frame4.pack() 
+        else:
+            frame3.pack()
         
     elif(terminar(tipo, Cj_Zj)==False):
         frame3.pack_forget()
+        frame4.pack_forget()
         
         Lbl3=tk.Label(newFrame, text="Metodo de la Gran M Paso "+str(paso))
         Lbl3.config(font=("Helvetica",24))
@@ -464,14 +486,16 @@ def imprimir(Coef, Var,V_Base,base, matriz, Zj, Cj_Zj, tipo,paso, fase):
                 Lbl3_2.config(font=("Helvetica",20))
                 Lbl3_2.grid(pady=5,row=matriz.shape[0]+(6+i),column=1, columnspan=3)
                 
-        z='%g'%(round(Zj[len(Zj)-1],1))
+#        z='%g'%(round(Zj[len(Zj)-1],1))
+        z=Zj[len(Zj)-1]
+        z=f"{z:.0f}"
         Lbl3_4=tk.Label(finalFrame, text="Z = ")
         Lbl3_4.config(font=("Helvetica",20))
         Lbl3_4.grid(pady=5,row=matriz.shape[0]+6,column=3, columnspan=3)
         
         Lbl3_3=tk.Label(finalFrame, text=z)
         Lbl3_3.config(font=("Helvetica",20))
-        Lbl3_3.grid(pady=5,row=matriz.shape[0]+6,column=4, columnspan=3)
+        Lbl3_3.grid(pady=3,row=matriz.shape[0]+6,column=4, columnspan=3)
     
         Btn2=tk.Button(finalFrame, text="Terminado", width=60)
         Btn2.grid(padx=1,pady=5,row=matriz.shape[0]+5,column=0, columnspan=matriz.shape[1])
